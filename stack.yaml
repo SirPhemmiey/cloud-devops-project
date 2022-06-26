@@ -201,6 +201,47 @@ Resources:
             RouteTableId: !Ref PrivateRouteTable2
             SubnetId: !Ref PrivateSubnet2
     
+    UdacityS3ReadOnlyEC2:
+        Type: AWS::IAM::Role
+        Properties:
+            RoleName: 
+                !Sub ${EnvironmentName}-Role
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                -   Effect: Allow
+                    Principal:
+                        Service:
+                        - ec2.amazonaws.com
+                    Action:
+                    - sts:AssumeRole
+            Path: "/"
+    
+    RolePolicies:
+        Type: AWS::IAM::Policy
+        Properties:
+            PolicyName: AmazonS3ReadOnlyAccess
+            PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                - 
+                    Effect: Allow
+                    Action: 
+                    -   s3:Get*
+                    -   s3:List*
+                    Resource: 
+                    -   arn:aws:s3:::udagram-project
+                    -   arn:aws:s3:::udagram-project/*
+            Roles:
+            -   Ref: UdacityS3ReadOnlyEC2
+
+    ProfileWithRoles:
+        Type: AWS::IAM::InstanceProfile
+        Properties:
+            Path: "/"
+            Roles:
+            - Ref: UdacityS3ReadOnlyEC2
+    
     LBSecGroup:
         Type: AWS::EC2::SecurityGroup
         Properties: 
@@ -257,11 +298,14 @@ Resources:
             Fn::Base64: !Sub |
               #!/bin/bash
               apt-get update -y
+              apt-get install unzip awscli -y
               apt-get install apache2 -y
               systemctl start apache2.service
               cd /var/www/html
-              echo "Udagram Up and Running!" > index.html
+              aws s3 cp s3://udagram-project/udacity-starter-website.zip .
+              unzip -o udacity-starter-website.zip
           ImageId: ami-0df32f8302dfe67df
+          IamInstanceProfile: !Ref ProfileWithRoles
           SecurityGroups:
           - Ref: WebServerSecGroup
           InstanceType: t3.medium
