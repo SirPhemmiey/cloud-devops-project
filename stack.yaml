@@ -248,3 +248,67 @@ Resources:
           Protocol: HTTP
           UnhealthyThresholdCount: 5
           VpcId: !Ref VPC
+
+    WebAppLaunchConfig:
+        Type: AWS::AutoScaling::LaunchConfiguration
+        Properties:
+          UserData:
+            Fn::Base64: !Sub |
+               #!/bin/bash
+              apt-get update -y
+              apt-get install apache2 -y
+              systemctl start apache2.service
+              cd /var/www/html
+              echo "Udagram Up and Running!" > index.html
+          ImageId: ami-0df32f8302dfe67df
+          SecurityGroups:
+          - Ref: WebServerSecGroup
+          InstanceType: t3.medium
+          BlockDeviceMappings:
+          - DeviceName: "/dev/sdk"
+            Ebs:
+              VolumeSize: '10'
+
+    WebAppGroup:
+        Type: AWS::AutoScaling::AutoScalingGroup
+        Properties:
+          VPCZoneIdentifier:
+          - Ref: "PrivateSubnet1"
+          - Ref: "PrivateSubnet2"
+          LaunchConfigurationName:
+            Ref: WebAppLaunchConfig
+          MaxSize: '5'
+          MinSize: '3'
+          TargetGroupARNs:
+          - Ref: WebAppTargetGroup
+
+    WebAppLB:
+        Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+        Properties:
+          Subnets:
+          - Ref: "PublicSubnet1"
+          - Ref: "PublicSubnet2"
+          SecurityGroups:
+          - Ref: LBSecGroup
+          
+    Listener:
+        Type: AWS::ElasticLoadBalancingV2::Listener
+        Properties:
+          LoadBalancerArn: !Ref WebAppLB
+          Port: '80'
+          Protocol: HTTP
+          DefaultActions:
+          - Type: forward
+            TargetGroupArn: !Ref 'WebAppTargetGroup'
+          
+    ALBListenerRule:
+        Type: AWS::ElasticLoadBalancingV2::ListenerRule
+        Properties: 
+          Actions:
+           - Type: forward
+             TargetGroupArn: !Ref 'WebAppTargetGroup'
+          Conditions:
+            - Field: path-pattern
+              Values: [/]
+          ListenerArn: !Ref 'Listener'
+          Priority: 1
