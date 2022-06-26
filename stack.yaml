@@ -62,7 +62,8 @@ Resources:
         Properties: 
             InternetGatewayId: !Ref InternetGateway
             VpcId: !Ref VPC
-        PublicSubnet1:
+
+    PublicSubnet1:
         Type: AWS::EC2::Subnet
         Properties:
             VpcId: !Ref VPC
@@ -254,7 +255,7 @@ Resources:
         Properties:
           UserData:
             Fn::Base64: !Sub |
-               #!/bin/bash
+              #!/bin/bash
               apt-get update -y
               apt-get install apache2 -y
               systemctl start apache2.service
@@ -290,7 +291,7 @@ Resources:
           - Ref: "PublicSubnet2"
           SecurityGroups:
           - Ref: LBSecGroup
-          
+
     Listener:
         Type: AWS::ElasticLoadBalancingV2::Listener
         Properties:
@@ -312,3 +313,71 @@ Resources:
               Values: [/]
           ListenerArn: !Ref 'Listener'
           Priority: 1
+
+Outputs:
+
+    VPC: 
+        Description: A reference to the created VPC
+        Value: !Ref VPC
+        Export:
+          Name: !Sub ${EnvironmentName}-VPCID
+
+    VPCPublicRouteTable:
+        Description: Public Routing
+        Value: !Ref PublicRouteTable
+        Export:
+          Name: !Sub ${EnvironmentName}-PUB-RT
+
+    VPCPrivateRouteTable1:
+        Description: Private Routing AZ1
+        Value: !Ref PrivateRouteTable1
+        Export:
+          Name: !Sub ${EnvironmentName}-PRT1-RT
+    
+    VPCPrivateRouteTable2:
+        Description: Private Routing AZ2
+        Value: !Ref PrivateRouteTable2
+        Export:
+          Name: !Sub ${EnvironmentName}-PRT2-RT
+
+    PublicSubnets:
+        Description: A list of the public subnets
+        Value: !Join [",", [!Ref PublicSubnet1, !Ref PublicSubnet2]]
+        Export:
+          Name: !Sub ${EnvironmentName}-PUB-NETS
+
+    PrivateSubnets:
+        Description: A list of the private subnets
+        Value: !Join [",", [!Ref PrivateSubnet1, !Ref PrivateSubnet2]]
+        Export:
+          Name: !Sub ${EnvironmentName}-PRV-NETS
+
+    PublicSubnet1:
+        Description: A reference to the public subnet in the 1st AvailabilityZone
+        Value: !Ref PublicSubnet1
+        Export:
+          Name: !Sub ${EnvironmentName}-PUB1-SN
+
+    PublicSubnet2:
+        Description: A reference to the public subnet in the 2nd AvailabilityZone
+        Value: !Ref PublicSubnet2
+        Export:
+          Name: !Sub ${EnvironmentName}-PUB2-SN
+
+    PrivateSubnet1:
+        Description: A reference to the private subnet in the 1st AvailabilityZone
+        Value: !Ref PrivateSubnet1
+        Export:
+          Name: !Sub ${EnvironmentName}-PRI1-SN
+
+    PrivateSubnet2:
+        Description: A reference to the private subnet in the 2nd AvailabilityZone
+        Value: !Ref PrivateSubnet2
+        Export:
+          Name: !Sub ${EnvironmentName}-PRI2-SN
+
+    LoadBalancerDNS:
+        Description: A reference to the LoadBalancer DNS
+        Value: !Join [ "", [ "http://", !GetAtt WebAppLB.DNSName ] ]
+        Export:
+          Name: !Sub "${EnvironmentName}-LB-DNS"
