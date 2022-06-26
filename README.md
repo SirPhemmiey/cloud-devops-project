@@ -3,7 +3,7 @@
 
 This is a project called Udagram App where i deployed web servers for a highly available web app using CloudFormation. I wrote the script to create, update, deploy and delete the infrastructure and application for the project from scratch. The script began by defining the parameters to accept, definining the resources (VPC, Internet gateways, S3 bucket policy, NAT gatways, private and public subnets, route tables, security groups, launch configuration, load balances and listeners).
 
-### Files Included
+### Project Content
 
 ```
 stack.yaml - it contains the main script for deploying the infrastructure
@@ -16,3 +16,6 @@ Udagram-Cloud-Arch.png - this is the cloud architecture diagram that the deploym
 screenshots/* - it's a folder that contains the necessary screenshots to show that all the processes were successful
 
 ```
+Cloud Architecture Diagram
+
+![Cloud-architecture-diagram](https://raw.githubusercontent.com/SirPhemmiey/cloud-devops-project/master/Udagram-Cloud-Arch.png)
