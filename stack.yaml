@@ -1,0 +1,40 @@
+Description: >
+    Oluwafemi Akinde for Udacity Cloud DevOps Engineer Class
+    This template deploys a VPC, with a pair of public and private subnets
+    across two Availability Zones. It deploys an Internet Gateway, with
+    route on the public subnets. It deploys a pair of NAT Gateways (one 
+    and default routes for them in the private subnets.) It deploys
+    Security groups for a Ubuntu launch configuration,
+    Auto-Scaling group, Load Balancer, Target Group with Listener
+    and Listener Rule.
+
+Parameters:
+
+    EnvironmentName:
+        Description: An environment name that will be prefixed to resource
+        Type: String
+
+    VpcCIDR:
+        Description: IP range (CIDR notation) for this VPC
+        Type: String
+        Default: 10.0.0.0/16
+
+    PublicSubnet1CIDR:
+        Description: IP range (CIDR notation) for the Subnet
+        Type: String
+        Default: 10.0.0.0/24
+
+    PublicSubnet2CIDR:
+        Description: IP range (CIDR notation) for the Subnet
+        Type: String
+        Default: 10.0.1.0/24
+
+    PrivateSubnet1CIDR:
+        Description: IP range (CIDR notation) for the Subnet
+        Type: String
+        Default: 10.0.2.0/24
+
+    PrivateSubnet2CIDR:
+        Description: IP range (CIDR notation) for the Subnet
+        Type: String
+        Default: 10.0.3.0/24
